@@ -73,6 +73,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'INTERNAL_ERROR', message: 'Something went wrong' });
 });
 
-app.listen(PORT, () => {
+const initDbIfEmpty = require('./src/db/init_db_if_empty');
+
+app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
+  await initDbIfEmpty();
 });

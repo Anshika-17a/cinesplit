@@ -201,14 +201,13 @@ const run = async () => {
 
     // Flush redis to ensure accurate available counts in UI
     try {
-      const redis = require('redis');
-      const rClient = redis.createClient({ url: process.env.REDIS_URI });
-      await rClient.connect();
-      await rClient.flushAll();
-      await rClient.disconnect();
-      console.log('Cleared redis cache for accurate fast-filling states.');
+      const redisClient = require('./src/config/redis');
+      if (redisClient && redisClient.status === 'ready') {
+        await redisClient.flushall();
+        console.log('Cleared redis cache for accurate fast-filling states.');
+      }
     } catch (e) {
-      console.error('Failed to flush redis:', e.message);
+      console.log('Notice on redis flush:', e.message);
     }
 
   } catch (err) {
@@ -217,4 +216,9 @@ const run = async () => {
     await client.end();
   }
 };
-run();
+
+if (require.main === module) {
+  run();
+}
+
+module.exports = run;
