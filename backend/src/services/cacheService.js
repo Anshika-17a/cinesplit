@@ -1,0 +1,60 @@
+const redisClient = require('../config/redis');
+const pgClient = require('../config/postgres');
+
+/**
+ * Gets available seat count for a show from cache.
+ * Falls back to Postgres on cache miss.
+ * 
+ * @param {number} showId 
+ * @returns {Promise<number>}
+ */
+const getAvailableSeatCount = async (showId) => {
+  const key = `show:${showId}:available_count`;
+  
+  try {
+    // 1. Try to get from Redis
+    const cachedCount = await redisClient.get(key);
+    if (cachedCount !== null) {
+      return parseInt(cachedCount, 10);
+    }
+
+    // 2. Cache miss, calculate from Postgres
+    const result = await pgClient.query(`
+      SELECT COUNT(*) as count 
+      FROM show_seats 
+      WHERE show_id = $1 AND status = 'available'
+    `, [showId]);
+    
+    const count = parseInt(result.rows[0].count, 10);
+
+    // 3. Populate cache (set TTL to e.g. 1 hour to prevent stale data forever)
+    await redisClient.set(key, count, 'EX', 3600);
+
+    return count;
+  } catch (err) {
+    console.error('Error in getAvailableSeatCount:', err.message);
+    // On error, fallback to 0 or re-throw based on business needs
+    return 0;
+  }
+};
+
+/**
+ * Invalidates the available seat count cache for a show.
+ * Should be called after successful booking/cancellation.
+ * 
+ * @param {number} showId 
+ * @returns {Promise<void>}
+ */
+const invalidateAvailableSeatCount = async (showId) => {
+  const key = `show:${showId}:available_count`;
+  try {
+    await redisClient.del(key);
+  } catch (err) {
+    console.error('Error invalidating seat count cache:', err.message);
+  }
+};
+
+module.exports = {
+  getAvailableSeatCount,
+  invalidateAvailableSeatCount
+};

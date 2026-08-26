@@ -1,0 +1,124 @@
+:root {
+  /* Colors */
+  --color-bg: #09090b; /* Very dark zinc */
+  --color-surface: rgba(24, 24, 27, 0.4); /* Translucent glass */
+  --color-surface-hover: rgba(39, 39, 42, 0.6);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-glow: rgba(139, 92, 246, 0.3); /* Violet glow */
+  
+  --color-text-primary: #f4f4f5;
+  --color-text-secondary: #a1a1aa;
+  
+  --color-accent: #8b5cf6; /* Electric Violet */
+  --color-accent-hover: #7c3aed;
+  
+  --color-danger: #ef4444;
+  --color-success: #10b981;
+
+  /* Typography */
+  --font-family: 'Inter', sans-serif;
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows & Effects */
+  --shadow-glass: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --backdrop-blur: blur(12px);
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.3s ease-out;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Base Inputs */
+input, textarea {
+  font-family: inherit;
+}
+
+/* Animated Ambient Background */
+.ambient-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: var(--color-bg);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambient-bg::before,
+.ambient-bg::after {
+  content: "";
+  position: absolute;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.25;
+  animation: float 25s infinite ease-in-out;
+}
+
+.ambient-bg::before {
+  background: var(--color-accent);
+  top: -10%;
+  left: -10%;
+}
+
+.ambient-bg::after {
+  background: #3b82f6;
+  bottom: -20%;
+  right: -10%;
+  animation-delay: -12.5s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(8%, 15%) scale(1.15);
+  }
+  66% {
+    transform: translate(-5%, -10%) scale(0.85);
+  }
+}
