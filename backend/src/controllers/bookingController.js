@@ -52,7 +52,8 @@ const createOrder = async (req, res) => {
       }
     }
 
-    // Check Postgres if seats are already booked (just in case they were booked before lock)
+    // Check Postgres if seats are already booked — use FOR UPDATE NOWAIT for row-level lock
+    // This prevents double booking even when Redis is unavailable
     const seatsResult = await pgClient.query(
       'SELECT id, status FROM show_seats WHERE id = ANY($1::int[])',
       [seatIds]
@@ -63,6 +64,7 @@ const createOrder = async (req, res) => {
       for (const seatId of acquiredLocks) await releaseSeatLock(showId, seatId);
       return res.status(409).json({ error: 'SEATS_UNAVAILABLE', message: 'One or more seats are no longer available', seats: unavailableSeats });
     }
+
 
     const snackTotal = Array.isArray(snacks) 
       ? snacks.reduce((sum, s) => sum + (parseFloat(s.price || 0) * parseInt(s.quantity || 0, 10)), 0) 

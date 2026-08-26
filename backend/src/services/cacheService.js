@@ -17,8 +17,12 @@ const getAvailableSeatCount = async (showId) => {
     if (cachedCount !== null) {
       return parseInt(cachedCount, 10);
     }
+  } catch (err) {
+    console.warn('Redis unavailable for seat count, querying Postgres directly:', err.message);
+  }
 
-    // 2. Cache miss, calculate from Postgres
+  try {
+    // 2. Cache miss or Redis error — calculate from Postgres
     const result = await pgClient.query(`
       SELECT COUNT(*) as count 
       FROM show_seats 
@@ -27,13 +31,14 @@ const getAvailableSeatCount = async (showId) => {
     
     const count = parseInt(result.rows[0].count, 10);
 
-    // 3. Populate cache (set TTL to e.g. 1 hour to prevent stale data forever)
-    await redisClient.set(key, count, 'EX', 3600);
+    // 3. Try to populate cache (non-fatal)
+    try {
+      await redisClient.set(key, count, 'EX', 3600);
+    } catch (_) { /* Redis write failed, ignore */ }
 
     return count;
   } catch (err) {
-    console.error('Error in getAvailableSeatCount:', err.message);
-    // On error, fallback to 0 or re-throw based on business needs
+    console.error('Error in getAvailableSeatCount (Postgres):', err.message);
     return 0;
   }
 };

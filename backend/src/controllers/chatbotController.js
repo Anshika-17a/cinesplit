@@ -20,8 +20,7 @@ const processChat = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    // Use flash-lite to avoid 503 overload and guarantee maximum speed
-    const model = genAI.getGenerativeModel({ model: 'gemini-flash-lite-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     // 1. Fetch catalog snapshot
     const catalog = await getCatalogSnapshot();

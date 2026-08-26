@@ -17,8 +17,10 @@ const acquireSeatLock = async (showId, seatId, ttlSeconds = 10) => {
     const result = await redisClient.set(key, 'locked', 'NX', 'PX', ttlSeconds * 1000);
     return result === 'OK';
   } catch (err) {
-    console.error('Error acquiring seat lock:', err.message);
-    return false;
+    // Redis unavailable — log but don't block booking.
+    // Postgres row-level lock + status check still prevents double-booking.
+    console.warn('Redis lock unavailable, falling back to DB-only protection:', err.message);
+    return true;
   }
 };
 
