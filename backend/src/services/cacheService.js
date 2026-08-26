@@ -54,7 +54,55 @@ const invalidateAvailableSeatCount = async (showId) => {
   }
 };
 
+/**
+ * Gets a lightweight snapshot of the catalog for Gemini Context
+ */
+const getCatalogSnapshot = async () => {
+  const key = 'catalog_snapshot';
+  try {
+    const cached = await redisClient.get(key);
+    if (cached) return JSON.parse(cached);
+
+    const res = await pgClient.query(`
+      SELECT m.id, m.title, m.languages, m.genre, m.age_rating, m.description, 
+             ARRAY_AGG(DISTINCT c.city) as cities
+      FROM movies m
+      LEFT JOIN shows s ON s.movie_id = m.id
+      LEFT JOIN screens scr ON s.screen_id = scr.id
+      LEFT JOIN cinemas c ON scr.cinema_id = c.id
+      GROUP BY m.id
+    `);
+    
+    const snapshot = res.rows;
+    await redisClient.set(key, JSON.stringify(snapshot), 'EX', 300); // 5 mins
+    return snapshot;
+  } catch (err) {
+    console.error('Error fetching catalog snapshot:', err);
+    return [];
+  }
+};
+
+/**
+ * Basic Redis rate limiter by IP or session
+ */
+const rateLimitIp = async (ip, limit = 10, windowSecs = 60) => {
+  const key = `ratelimit:${ip}`;
+  try {
+    const current = await redisClient.incr(key);
+    if (current === 1) {
+      await redisClient.expire(key, windowSecs);
+    }
+    if (current > limit) return false; // Rate limited
+    return true; // Allowed
+  } catch (err) {
+    console.error('Redis rate limit error:', err);
+    return true; // Fail open
+  }
+};
+
 module.exports = {
   getAvailableSeatCount,
-  invalidateAvailableSeatCount
+  invalidateAvailableSeatCount,
+  getCatalogSnapshot,
+  rateLimitIp
 };

@@ -133,11 +133,24 @@ export const MyBookings: React.FC = () => {
                   </span>
                 )}
               </div>
-              {tab === 'upcoming' && b.booking_status !== 'cancelled' && (
-                <Button variant="ghost" onClick={() => { setBookingToCancel(b.booking_id); setCancelModalOpen(true); }} style={{ color: 'var(--color-danger)' }}>
-                  Cancel
-                </Button>
-              )}
+              <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                {b.booking_status !== 'cancelled' && (
+                  <Button variant="secondary" onClick={() => {
+                    const text = `I'm going to see ${b.movie_title} at ${b.cinema_name} on ${new Date(b.start_time).toLocaleString()}! Join me!`;
+                    if (navigator.share) {
+                      navigator.share({ title: 'My Ticket', text }).catch(console.error);
+                    } else {
+                      navigator.clipboard.writeText(text);
+                      addToast('Ticket info copied to clipboard!', 'info');
+                    }
+                  }}>Share 🔗</Button>
+                )}
+                {tab === 'upcoming' && b.booking_status !== 'cancelled' && (
+                  <Button variant="ghost" onClick={() => { setBookingToCancel(b.booking_id); setCancelModalOpen(true); }} style={{ color: 'var(--color-danger)' }}>
+                    Cancel
+                  </Button>
+                )}
+              </div>
             </Card>
           ))
         )}

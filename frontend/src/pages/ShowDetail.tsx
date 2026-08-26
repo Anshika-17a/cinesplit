@@ -8,9 +8,20 @@ import { apiClient } from '../api/client';
 import { useToastStore } from '../hooks/useToast';
 import { motion, AnimatePresence } from 'framer-motion';
 
+interface CastMember {
+  actorName: string;
+  characterName: string;
+  photoUrl: string;
+}
+
 interface ShowData {
   show_id: number;
   title: string;
+  description?: string;
+  movie_cast?: CastMember[];
+  genre?: string;
+  age_rating?: string;
+  languages?: string[];
   duration_minutes: number;
   start_time: string;
   price_per_seat: string;
@@ -134,6 +145,10 @@ export const ShowDetail: React.FC = () => {
         }
       };
 
+      if (!(window as any).Razorpay) {
+        throw new Error('Razorpay SDK failed to load. Please disable ad-blockers and try again.');
+      }
+
       const rzp = new (window as any).Razorpay(options);
       rzp.on('payment.failed', function (response: any) {
         addToast(response.error.description || 'Payment failed', 'error');
@@ -151,7 +166,7 @@ export const ShowDetail: React.FC = () => {
         });
         fetchSeatMap();
       } else {
-        addToast(err.response?.data?.message || 'Failed to initialize payment', 'error');
+        addToast(err.response?.data?.message || err.message || 'Failed to initialize payment', 'error');
       }
       setBooking(false);
     }
@@ -189,9 +204,80 @@ export const ShowDetail: React.FC = () => {
               <Button variant="secondary" onClick={() => setIsTrailerOpen(true)}>Watch Trailer</Button>
             )}
           </div>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-xl)' }}>
-            {show.cinema_name} • {show.screen_name} • {new Date(show.start_time).toLocaleString()}
+          
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center', flexWrap: 'wrap', marginBottom: 'var(--space-sm)' }}>
+            <span style={{ padding: '0.2rem 0.6rem', background: 'var(--color-surface)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 600 }}>{show.age_rating}</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>{show.genre}</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>•</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>{show.duration_minutes} mins</span>
+          </div>
+
+          <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-sm)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+            {show.description}
           </p>
+
+          {show.movie_cast && show.movie_cast.length > 0 && (
+            <div style={{ marginBottom: 'var(--space-2xl)' }}>
+              <style>{`
+                .cast-container {
+                  display: flex;
+                  overflow-x: auto;
+                  gap: var(--space-md);
+                  padding-bottom: var(--space-md);
+                  scrollbar-width: none; /* Firefox */
+                }
+                .cast-container::-webkit-scrollbar {
+                  display: none; /* Chrome/Safari */
+                }
+                @media (max-width: 768px) {
+                  .cast-container {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                    overflow-x: visible;
+                  }
+                }
+              `}</style>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: 'var(--space-md)', letterSpacing: '0.05em' }}>Cast</h3>
+              <div className="cast-container">
+                {show.movie_cast.map((cast, idx) => (
+                  <motion.div 
+                    key={idx} 
+                    whileHover={{ scale: 1.05 }}
+                    style={{ 
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', 
+                      textAlign: 'center', minWidth: '120px', padding: 'var(--space-sm)',
+                      background: 'var(--color-surface)', borderRadius: 'var(--radius-lg)',
+                      border: '1px solid var(--color-border)',
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.1)', cursor: 'pointer'
+                    }}
+                  >
+                    <img 
+                      src={cast.photoUrl} 
+                      alt={cast.actorName} 
+                      style={{ 
+                        width: '80px', height: '80px', objectFit: 'cover', 
+                        borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-sm)' 
+                      }} 
+                    />
+                    <p style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '2px', color: 'var(--color-text-primary)' }}>
+                      {cast.actorName}
+                    </p>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.75rem' }}>
+                      as {cast.characterName}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ background: 'var(--color-surface)', padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-xl)', display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+            <span style={{ fontSize: '1.2rem' }}>📍</span>
+            <div>
+              <p style={{ fontWeight: 600, fontSize: '0.9rem' }}>{show.cinema_name} — {show.screen_name}</p>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}>{new Date(show.start_time).toLocaleString()}</p>
+            </div>
+          </div>
 
           <AnimatePresence>
             {isTrailerOpen && show.trailer_url && (

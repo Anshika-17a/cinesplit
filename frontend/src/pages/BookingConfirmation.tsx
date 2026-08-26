@@ -23,10 +23,21 @@ export const BookingConfirmation: React.FC = () => {
             Your booking ID is <strong style={{ color: 'var(--color-text-primary)' }}>#{bookingId}</strong>.
           </p>
           
-          <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/bookings">
               <Button variant="secondary">View My Bookings</Button>
             </Link>
+            <Button variant="secondary" onClick={() => {
+              const text = `I just booked my tickets on CineSplit! My Booking ID is #${bookingId}. Join me!`;
+              if (navigator.share) {
+                navigator.share({ title: 'CineSplit Ticket', text }).catch(console.error);
+              } else {
+                navigator.clipboard.writeText(text);
+                alert('Ticket info copied to clipboard!');
+              }
+            }}>
+              Share Ticket 🔗
+            </Button>
             <Link to="/">
               <Button>Book Another</Button>
             </Link>

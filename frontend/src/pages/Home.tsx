@@ -4,6 +4,7 @@ import { PageTransition } from '../components/PageTransition';
 import { Skeleton } from '../components/Skeleton';
 import { apiClient } from '../api/client';
 import { motion } from 'framer-motion';
+import { useAppStore } from '../hooks/useAppStore';
 
 interface Movie {
   id: number;
@@ -20,7 +21,7 @@ const MovieCard: React.FC<{ movie: Movie, selectedCity: string }> = ({ movie, se
   return (
     <motion.div
       whileHover={{ scale: 1.03, y: -5 }}
-      onClick={() => navigate(`/movies/${movie.id}/shows?city=${encodeURIComponent(selectedCity)}`)}
+      onClick={() => navigate(`/movies/${movie.id}/shows`)}
       style={{
         cursor: 'pointer',
         display: 'flex', flexDirection: 'column'
@@ -55,8 +56,7 @@ const MovieCard: React.FC<{ movie: Movie, selectedCity: string }> = ({ movie, se
 };
 
 export const Home: React.FC = () => {
-  const [cities, setCities] = useState<string[]>(['All Cities']);
-  const [selectedCity, setSelectedCity] = useState<string>('All Cities');
+  const selectedCity = useAppStore((state) => state.city);
   
   const [selectedLanguage, setSelectedLanguage] = useState<string>('All');
   const LANGUAGES = ['All', 'Hindi', 'English', 'Telugu', 'Tamil', 'Kannada'];
@@ -64,14 +64,6 @@ export const Home: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Fetch cities for dropdown
-    apiClient.get('/cinemas').then(res => {
-      const uniqueCities = Array.from(new Set(res.data.map((c: any) => c.city))) as string[];
-      setCities(['All Cities', ...uniqueCities]);
-    }).catch(console.error);
-  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -91,17 +83,6 @@ export const Home: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)', flexWrap: 'wrap', gap: 'var(--space-md)' }}>
         <div style={{ display: 'flex', gap: 'var(--space-xl)' }}>
           <button style={{ color: 'var(--color-text-primary)', fontWeight: 600, borderBottom: '2px solid var(--color-accent)', paddingBottom: '0.2rem', background: 'transparent', cursor: 'pointer', fontSize: '1.25rem' }}>Movies</button>
-        </div>
-        <div>
-          <select 
-            value={selectedCity} 
-            onChange={e => setSelectedCity(e.target.value)}
-            style={{
-              background: 'var(--color-surface)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '0.5rem 1rem', outline: 'none', cursor: 'pointer'
-            }}
-          >
-            {cities.map(city => <option key={city} value={city}>{city}</option>)}
-          </select>
         </div>
       </div>
 

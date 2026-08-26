@@ -25,6 +25,7 @@ const cinemaRoutes = require('./src/routes/cinemaRoutes');
 const showRoutes = require('./src/routes/showRoutes');
 const bookingRoutes = require('./src/routes/bookingRoutes');
 const movieRoutes = require('./src/routes/movieRoutes');
+const chatbotRoutes = require('./src/routes/chatbotRoutes');
 
 // Basic Route
 app.get('/', (req, res) => {
@@ -36,6 +37,7 @@ app.use('/api/cinemas', cinemaRoutes);
 app.use('/api/shows', showRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/movies', movieRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
