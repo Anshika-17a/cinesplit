@@ -1,15 +1,15 @@
-# CineSplit 🎬
+# CineSplit 🍿
 
-CineSplit is a premium, full-stack movie ticketing platform built with a modern tech stack. It features a sleek glassmorphism UI, real-time seat locking with Redis, robust PostgreSQL transactional guarantees, Razorpay payment gateway integration, and intelligent chatbot assistance.
+CineSplit is a premium, full-stack movie ticketing platform built with a modern tech stack. It features a sleek glassmorphism UI, real-time seat locking with Redis, robust PostgreSQL transactional guarantees, Razorpay payment gateway integration, and a **Gemini AI-powered conversational chatbot**.
 
-## 🚀 Features
+## ✨ Features
 
 - **Cinematic UI/UX:** Dark-mode glassmorphism design with a responsive layout, animated ambient backgrounds, and skeleton loading states.
 - **Seat Mapping & Locking:** Interactive theater seat maps with real-time Redis caching. Seats are temporarily locked (5-minute TTL) during checkout to prevent double-booking.
+- **Gemini AI Support Chatbot:** Integrated with Google Generative AI (`gemini-flash-lite-latest`) to provide blazing-fast, natural language movie recommendations and booking assistance. It dynamically renders clickable movie cards right inside the chat!
 - **Payment Gateway:** Razorpay test-mode integration featuring server-side HMAC SHA-256 signature verification and automated rollback/refund logic.
-- **Multi-City & Regional Support:** Region-based filtering (e.g., Bangalore, Mumbai) that updates available cinemas and shows dynamically.
+- **Multi-City & Regional Support:** Global City Selection UI powered by Zustand. Region-based filtering (e.g., Bangalore, Mumbai) updates available cinemas, movies, and showtimes dynamically.
 - **Robust Database Transactions:** Built on PostgreSQL using `FOR UPDATE` row-level locks and `BEGIN/COMMIT` transactional blocks to ensure data integrity during concurrent booking attempts.
-- **Intelligent Support Chatbot:** Integrated NLP chatbot capable of identifying intents like booking support and cancellation handling.
 - **Authentication:** Secure JWT-based user authentication and rate-limited endpoints.
 
 ## 🛠️ Tech Stack
@@ -18,7 +18,7 @@ CineSplit is a premium, full-stack movie ticketing platform built with a modern 
 - **Framework:** React 18 with Vite
 - **Language:** TypeScript
 - **Styling:** Vanilla CSS (CSS Variables) with Framer Motion for animations
-- **State & Data Fetching:** React Hooks, Axios
+- **State & Data Fetching:** Zustand (Global State), React Hooks, Axios
 - **Payment:** Razorpay Checkout V1
 
 ### Backend
@@ -26,10 +26,10 @@ CineSplit is a premium, full-stack movie ticketing platform built with a modern 
 - **Primary Database:** PostgreSQL
 - **Caching & Locking:** Redis (`ioredis`)
 - **Secondary DB (Logs/Chat):** MongoDB Atlas (Mongoose)
+- **AI Integration:** Google Generative AI SDK (`@google/generative-ai`)
 - **Security:** Helmet, Express Rate Limit, bcrypt, JWT
-- **Infrastructure as Code:** `render.yaml` blueprint included
 
-## 🏃‍♂️ Local Development Setup
+## 🚀 Local Development Setup
 
 ### Prerequisites
 - Node.js (v18+)
@@ -50,16 +50,18 @@ npm install
 Create a `.env` file in the `backend` directory:
 ```env
 PORT=5000
-DATABASE_URL=postgresql://cinesplit_user:password123@localhost:5433/cinesplit
-REDIS_URL=redis://localhost:6379
-MONGO_URI=mongodb+srv://<your-atlas-connection-string>
+POSTGRES_URI=postgresql://cinesplit_user:cinesplit_password@localhost:5433/cinesplit_db
+REDIS_HOST=localhost
+REDIS_PORT=6379
+MONGO_URI=mongodb://admin:admin_password@localhost:27017/cinesplit_db?authSource=admin
 JWT_SECRET=super_secret_jwt_key
 RAZORPAY_KEY_ID=rzp_test_YOUR_KEY_HERE
 RAZORPAY_KEY_SECRET=YOUR_SECRET_HERE
+GEMINI_API_KEY=YOUR_GEMINI_KEY_HERE
 ```
-Run database migrations and seed data:
+Run the extended database seed script to generate cinemas, movies, screens, and shows:
 ```bash
-npm run db:setup
+node seed_extended.js
 ```
 Start the backend server:
 ```bash
@@ -71,10 +73,6 @@ Open a new terminal window:
 ```bash
 cd frontend
 npm install
-```
-*(Optional)* Create a `.env` file in the `frontend` directory if your backend runs on a different port:
-```env
-VITE_API_URL=http://localhost:5000/api
 ```
 Start the Vite development server:
 ```bash
