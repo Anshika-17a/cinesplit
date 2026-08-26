@@ -5,6 +5,8 @@ const { logBookingActivity } = require('../services/activityLogService');
 const { isShowBookable } = require('../utils/showHelpers');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const QRCode = require('qrcode');
+const jwt = require('jsonwebtoken');
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'dummy_id',
@@ -309,10 +311,89 @@ const getUserBookings = async (req, res) => {
   }
 };
 
+const getTicketData = async (req, res) => {
+  const userId = req.user.userId;
+  const bookingId = parseInt(req.params.bookingId, 10);
+
+  try {
+    const result = await pgClient.query(`
+      SELECT 
+        b.id as booking_id, b.status, b.total_amount, b.created_at,
+        sh.id as show_id, sh.start_time,
+        m.title as movie_title, m.poster_url,
+        c.name as cinema_name, s.name as screen_name,
+        json_agg(json_build_object('seat_number', st.seat_number, 'row_label', st.row_label)) as seats
+      FROM bookings b
+      JOIN shows sh ON b.show_id = sh.id
+      JOIN movies m ON sh.movie_id = m.id
+      JOIN screens s ON sh.screen_id = s.id
+      JOIN cinemas c ON s.cinema_id = c.id
+      JOIN booking_seats bs ON bs.booking_id = b.id
+      JOIN show_seats ss ON bs.show_seat_id = ss.id
+      JOIN seats st ON ss.seat_id = st.id
+      WHERE b.id = $1 AND b.user_id = $2
+      GROUP BY b.id, sh.id, m.id, c.id, s.id
+    `, [bookingId, userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Error fetching ticket:', err);
+    res.status(500).json({ message: 'Failed to fetch ticket data' });
+  }
+};
+
+const getBookingQR = async (req, res) => {
+  const userId = req.user.userId;
+  const bookingId = parseInt(req.params.bookingId, 10);
+
+  try {
+    // Verify ownership
+    const result = await pgClient.query(
+      'SELECT id, show_id FROM bookings WHERE id = $1 AND user_id = $2',
+      [bookingId, userId]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Get seat IDs
+    const seatsResult = await pgClient.query(
+      'SELECT show_seat_id FROM booking_seats WHERE booking_id = $1',
+      [bookingId]
+    );
+    const seatIds = seatsResult.rows.map(r => r.show_seat_id);
+
+    // Sign a JWT token as the QR payload
+    const qrPayload = jwt.sign(
+      { bookingId, showId: result.rows[0].show_id, seatIds, userId },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    // Generate QR as data URL
+    const qrDataUrl = await QRCode.toDataURL(qrPayload, {
+      width: 250,
+      margin: 2,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+
+    res.json({ qr: qrDataUrl });
+  } catch (err) {
+    console.error('Error generating QR:', err);
+    res.status(500).json({ message: 'Failed to generate QR code' });
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
   releaseLocks,
   cancelBooking,
-  getUserBookings
+  getUserBookings,
+  getTicketData,
+  getBookingQR
 };
