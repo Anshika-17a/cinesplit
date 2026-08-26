@@ -67,64 +67,64 @@ const run = async () => {
 
     // 4. Insert Original Blockbuster Movies
     const moviesData = [
-      ['Dune: Part Two', "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.", 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2JGjjc91p.jpg', 'https://www.youtube-nocookie.com/embed/U2Qp5pL3ovA?autoplay=1&mute=1', 166, 'UA16+', 'Sci-Fi', '{English,Hindi}', JSON.stringify([
+      ['Dune: Part Two', "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.", '/posters/dune_part_two.jpg', 'https://www.youtube-nocookie.com/embed/U2Qp5pL3ovA?autoplay=1&mute=1', 166, 'UA16+', 'Sci-Fi', '{English,Hindi}', JSON.stringify([
         { actorName: 'Timothée Chalamet', characterName: 'Paul Atreides', photoUrl: 'https://i.pravatar.cc/150?u=Timothee' },
         { actorName: 'Zendaya', characterName: 'Chani', photoUrl: 'https://i.pravatar.cc/150?u=Zendaya' },
         { actorName: 'Rebecca Ferguson', characterName: 'Lady Jessica', photoUrl: 'https://i.pravatar.cc/150?u=Rebecca' },
         { actorName: 'Javier Bardem', characterName: 'Stilgar', photoUrl: 'https://i.pravatar.cc/150?u=Javier' }
       ])],
-      ['Oppenheimer', "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.", 'https://m.media-amazon.com/images/M/MV5BMDBmYTZjNjUtN2M1MS00MTQ2LTk2ODgtNzc2M2QyZGE5NTVjXkEyXkFqcGdeQXVyNzAwMjU2MTY@._V1_FMjpg_UX1000_.jpg', 'https://www.youtube-nocookie.com/embed/bK6ldnjE3Y0?autoplay=1&mute=1', 180, 'A', 'Biography', '{English}', JSON.stringify([
+      ['Oppenheimer', "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.", '/posters/oppenheimer.jpg', 'https://www.youtube-nocookie.com/embed/bK6ldnjE3Y0?autoplay=1&mute=1', 180, 'A', 'Biography', '{English}', JSON.stringify([
         { actorName: 'Cillian Murphy', characterName: 'J. Robert Oppenheimer', photoUrl: 'https://i.pravatar.cc/150?u=Cillian' },
         { actorName: 'Emily Blunt', characterName: 'Kitty Oppenheimer', photoUrl: 'https://i.pravatar.cc/150?u=Emily' },
         { actorName: 'Matt Damon', characterName: 'Leslie Groves', photoUrl: 'https://i.pravatar.cc/150?u=Matt' },
         { actorName: 'Robert Downey Jr.', characterName: 'Lewis Strauss', photoUrl: 'https://i.pravatar.cc/150?u=Robert' }
       ])],
-      ['Deadpool & Wolverine', "A listless Wade Wilson toils away in civilian life with his days as the morally flexible mercenary behind him.", 'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg', 'https://www.youtube-nocookie.com/embed/73_1biulkYk?autoplay=1&mute=1', 127, 'A', 'Action', '{English,Hindi,Telugu,Tamil}', JSON.stringify([
+      ['Deadpool & Wolverine', "A listless Wade Wilson toils away in civilian life with his days as the morally flexible mercenary behind him.", '/posters/deadpool_wolverine.jpg', 'https://www.youtube-nocookie.com/embed/73_1biulkYk?autoplay=1&mute=1', 127, 'A', 'Action', '{English,Hindi,Telugu,Tamil}', JSON.stringify([
         { actorName: 'Ryan Reynolds', characterName: 'Deadpool', photoUrl: 'https://i.pravatar.cc/150?u=Ryan' },
         { actorName: 'Hugh Jackman', characterName: 'Wolverine', photoUrl: 'https://i.pravatar.cc/150?u=Hugh' },
         { actorName: 'Emma Corrin', characterName: 'Cassandra Nova', photoUrl: 'https://i.pravatar.cc/150?u=Emma' }
       ])],
-      ['Avatar: The Way of Water', "Set more than a decade after the events of the first film, Jake Sully lives with his newfound family.", 'https://image.tmdb.org/t/p/w500/t6HIqrHeZ64s5gw4KU42PNT28qA.jpg', 'https://www.youtube-nocookie.com/embed/d9MyW72ELq0?autoplay=1&mute=1', 192, 'UA', 'Sci-Fi', '{English,Hindi,Tamil,Telugu}', JSON.stringify([
+      ['Avatar: The Way of Water', "Set more than a decade after the events of the first film, Jake Sully lives with his newfound family.", '/posters/avatar_the_way_of_water.jpg', 'https://www.youtube-nocookie.com/embed/d9MyW72ELq0?autoplay=1&mute=1', 192, 'UA', 'Sci-Fi', '{English,Hindi,Tamil,Telugu}', JSON.stringify([
         { actorName: 'Sam Worthington', characterName: 'Jake Sully', photoUrl: 'https://i.pravatar.cc/150?u=Sam' },
         { actorName: 'Zoe Saldaña', characterName: 'Neytiri', photoUrl: 'https://i.pravatar.cc/150?u=Zoe' },
         { actorName: 'Sigourney Weaver', characterName: 'Kiri', photoUrl: 'https://i.pravatar.cc/150?u=Sigourney' }
       ])],
-      ['Jawan', "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in society.", 'https://image.tmdb.org/t/p/w500/jILeVkBBnQ8D5nEEuG75B2ZJ8s4.jpg', 'https://www.youtube-nocookie.com/embed/COv52Qyctws?autoplay=1&mute=1', 169, 'UA16+', 'Action', '{Hindi,Tamil,Telugu}', JSON.stringify([
+      ['Jawan', "A high-octane action thriller which outlines the emotional journey of a man who is set to rectify the wrongs in society.", '/posters/jawan.jpg', 'https://www.youtube-nocookie.com/embed/COv52Qyctws?autoplay=1&mute=1', 169, 'UA16+', 'Action', '{Hindi,Tamil,Telugu}', JSON.stringify([
         { actorName: 'Shah Rukh Khan', characterName: 'Vikram Rathore', photoUrl: 'https://i.pravatar.cc/150?u=SRK' },
         { actorName: 'Nayanthara', characterName: 'Narmada', photoUrl: 'https://i.pravatar.cc/150?u=Nayanthara' },
         { actorName: 'Vijay Sethupathi', characterName: 'Kalee', photoUrl: 'https://i.pravatar.cc/150?u=Vijay' }
       ])],
-      ['Animal', "A gripping tale of a son's obsessive love for his emotionally unavailable father.", 'https://image.tmdb.org/t/p/w500/hr9rjR3J0xBBKmlJ4n3gvd1Epe4.jpg', 'https://www.youtube-nocookie.com/embed/DhjzM_R7cT0?autoplay=1&mute=1', 201, 'A', 'Action/Drama', '{Hindi,Telugu}', JSON.stringify([
+      ['Animal', "A gripping tale of a son's obsessive love for his emotionally unavailable father.", '/posters/animal.jpg', 'https://www.youtube-nocookie.com/embed/DhjzM_R7cT0?autoplay=1&mute=1', 201, 'A', 'Action/Drama', '{Hindi,Telugu}', JSON.stringify([
         { actorName: 'Ranbir Kapoor', characterName: 'Ranvijay Singh', photoUrl: 'https://i.pravatar.cc/150?u=Ranbir' },
         { actorName: 'Anil Kapoor', characterName: 'Balbir Singh', photoUrl: 'https://i.pravatar.cc/150?u=Anil' },
         { actorName: 'Rashmika Mandanna', characterName: 'Geetanjali', photoUrl: 'https://i.pravatar.cc/150?u=Rashmika' }
       ])],
-      ['Kalki 2898 AD', "A modern-day avatar of Vishnu descends to Earth in a distant, dystopian future to protect humanity.", 'https://image.tmdb.org/t/p/w500/wyA824h6JmUq5uEDwH0ZfU5S7p3.jpg', 'https://www.youtube-nocookie.com/embed/kqQ82-N_e-0?autoplay=1&mute=1', 181, 'UA', 'Sci-Fi', '{Telugu,Hindi,Tamil}', JSON.stringify([
+      ['Kalki 2898 AD', "A modern-day avatar of Vishnu descends to Earth in a distant, dystopian future to protect humanity.", '/posters/kalki_2898_ad.jpg', 'https://www.youtube-nocookie.com/embed/kqQ82-N_e-0?autoplay=1&mute=1', 181, 'UA', 'Sci-Fi', '{Telugu,Hindi,Tamil}', JSON.stringify([
         { actorName: 'Prabhas', characterName: 'Bhairava', photoUrl: 'https://i.pravatar.cc/150?u=Prabhas' },
         { actorName: 'Amitabh Bachchan', characterName: 'Ashwatthama', photoUrl: 'https://i.pravatar.cc/150?u=Amitabh' },
         { actorName: 'Deepika Padukone', characterName: 'SUM-80', photoUrl: 'https://i.pravatar.cc/150?u=DeepikaP' }
       ])],
-      ['RRR', "A fictitious story about two legendary Indian revolutionaries and their journey away from home.", 'https://image.tmdb.org/t/p/w500/nEufeZlyAOLqO2brrs0yeO1bqHO.jpg', 'https://www.youtube-nocookie.com/embed/NgBoKQy3EQg?autoplay=1&mute=1', 187, 'UA', 'Action/Epic', '{Telugu,Hindi,Tamil,Kannada}', JSON.stringify([
+      ['RRR', "A fictitious story about two legendary Indian revolutionaries and their journey away from home.", '/posters/rrr.jpg', 'https://www.youtube-nocookie.com/embed/NgBoKQy3EQg?autoplay=1&mute=1', 187, 'UA', 'Action/Epic', '{Telugu,Hindi,Tamil,Kannada}', JSON.stringify([
         { actorName: 'N.T. Rama Rao Jr.', characterName: 'Bheem', photoUrl: 'https://i.pravatar.cc/150?u=NTR' },
         { actorName: 'Ram Charan', characterName: 'Raju', photoUrl: 'https://i.pravatar.cc/150?u=Ram' },
         { actorName: 'Alia Bhatt', characterName: 'Sita', photoUrl: 'https://i.pravatar.cc/150?u=Alia' }
       ])],
-      ['Salaar', "In the fictional dystopian city-state of Khansaar, a gang leader makes a promise to a dying friend.", 'https://image.tmdb.org/t/p/w500/rXQkF94LgBswvY7sH3ZkRMBJ0V2.jpg', 'https://www.youtube-nocookie.com/embed/4bJpA7iVbN4?autoplay=1&mute=1', 175, 'A', 'Action', '{Telugu,Hindi,Kannada}', JSON.stringify([
+      ['Salaar', "In the fictional dystopian city-state of Khansaar, a gang leader makes a promise to a dying friend.", '/posters/salaar.jpg', 'https://www.youtube-nocookie.com/embed/4bJpA7iVbN4?autoplay=1&mute=1', 175, 'A', 'Action', '{Telugu,Hindi,Kannada}', JSON.stringify([
         { actorName: 'Prabhas', characterName: 'Deva', photoUrl: 'https://i.pravatar.cc/150?u=Prabhas2' },
         { actorName: 'Prithviraj Sukumaran', characterName: 'Vardha', photoUrl: 'https://i.pravatar.cc/150?u=Prithviraj' },
         { actorName: 'Shruti Haasan', characterName: 'Aadhya', photoUrl: 'https://i.pravatar.cc/150?u=Shruti' }
       ])],
-      ['Leo', "A mild-mannered cafe owner becomes a local hero through an act of violence, drawing the attention of a dangerous cartel.", 'https://image.tmdb.org/t/p/w500/pD6sL4vvnU0nV1dE7A8bZ3b40E.jpg', 'https://www.youtube-nocookie.com/embed/Po3jStA673E?autoplay=1&mute=1', 164, 'UA16+', 'Action', '{Tamil,Hindi,Telugu}', JSON.stringify([
+      ['Leo', "A mild-mannered cafe owner becomes a local hero through an act of violence, drawing the attention of a dangerous cartel.", '/posters/leo.jpg', 'https://www.youtube-nocookie.com/embed/Po3jStA673E?autoplay=1&mute=1', 164, 'UA16+', 'Action', '{Tamil,Hindi,Telugu}', JSON.stringify([
         { actorName: 'Vijay', characterName: 'Parthiban', photoUrl: 'https://i.pravatar.cc/150?u=Vijay' },
         { actorName: 'Sanjay Dutt', characterName: 'Antony Das', photoUrl: 'https://i.pravatar.cc/150?u=Sanjay' },
         { actorName: 'Trisha', characterName: 'Sathya', photoUrl: 'https://i.pravatar.cc/150?u=Trisha' }
       ])],
-      ['Spider-Man: No Way Home', "With Spider-Man's identity now revealed, Peter asks Doctor Strange for help.", 'https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1R80vF332arWz9.jpg', 'https://www.youtube-nocookie.com/embed/JfVOs4VSpmA?autoplay=1&mute=1', 148, 'UA', 'Action', '{English,Hindi,Tamil,Telugu}', JSON.stringify([
+      ['Spider-Man: No Way Home', "With Spider-Man's identity now revealed, Peter asks Doctor Strange for help.", '/posters/spider_man_no_way_home.jpg', 'https://www.youtube-nocookie.com/embed/JfVOs4VSpmA?autoplay=1&mute=1', 148, 'UA', 'Action', '{English,Hindi,Tamil,Telugu}', JSON.stringify([
         { actorName: 'Tom Holland', characterName: 'Peter Parker', photoUrl: 'https://i.pravatar.cc/150?u=Tom' },
         { actorName: 'Zendaya', characterName: 'MJ', photoUrl: 'https://i.pravatar.cc/150?u=Zendaya2' },
         { actorName: 'Benedict Cumberbatch', characterName: 'Doctor Strange', photoUrl: 'https://i.pravatar.cc/150?u=Benedict' }
       ])],
-      ['The Batman', "When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate.", 'https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg', 'https://www.youtube-nocookie.com/embed/mqqft2x_Aa4?autoplay=1&mute=1', 176, 'UA16+', 'Action', '{English,Hindi,Tamil,Telugu}', JSON.stringify([
+      ['The Batman', "When a sadistic serial killer begins murdering key political figures in Gotham, Batman is forced to investigate.", '/posters/the_batman.jpg', 'https://www.youtube-nocookie.com/embed/mqqft2x_Aa4?autoplay=1&mute=1', 176, 'UA16+', 'Action', '{English,Hindi,Tamil,Telugu}', JSON.stringify([
         { actorName: 'Robert Pattinson', characterName: 'Bruce Wayne', photoUrl: 'https://i.pravatar.cc/150?u=Rob' },
         { actorName: 'Zoë Kravitz', characterName: 'Selina Kyle', photoUrl: 'https://i.pravatar.cc/150?u=ZoeK' },
         { actorName: 'Paul Dano', characterName: 'The Riddler', photoUrl: 'https://i.pravatar.cc/150?u=Paul' }
