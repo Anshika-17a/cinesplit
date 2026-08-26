@@ -7,9 +7,9 @@ const run = async () => {
     await client.connect();
     console.log('Connected to DB. Running extended regional seed...');
 
-    // 1. Clear Existing Data
+    // 1. Clear Existing Data (including users for demo reset)
     await client.query(`
-      TRUNCATE TABLE booking_seats, bookings, show_seats, shows, movies, seats, screens, cinemas CASCADE;
+      TRUNCATE TABLE booking_seats, bookings, show_seats, shows, movies, seats, screens, cinemas, users CASCADE;
     `);
 
     // 2. Insert Cinemas with regional addresses
