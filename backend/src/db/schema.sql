@@ -1,7 +1,16 @@
-CREATE TYPE seat_status AS ENUM ('available', 'locked', 'booked');
-CREATE TYPE booking_status AS ENUM ('confirmed', 'cancelled');
+DO $$ BEGIN
+    CREATE TYPE seat_status AS ENUM ('available', 'locked', 'booked');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
-CREATE TABLE users (
+DO $$ BEGIN
+    CREATE TYPE booking_status AS ENUM ('confirmed', 'cancelled');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -9,7 +18,7 @@ CREATE TABLE users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE cinemas (
+CREATE TABLE IF NOT EXISTS cinemas (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     city VARCHAR(255) NOT NULL,
@@ -17,7 +26,7 @@ CREATE TABLE cinemas (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE screens (
+CREATE TABLE IF NOT EXISTS screens (
     id SERIAL PRIMARY KEY,
     cinema_id INTEGER REFERENCES cinemas(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
@@ -25,23 +34,27 @@ CREATE TABLE screens (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE seats (
+CREATE TABLE IF NOT EXISTS seats (
     id SERIAL PRIMARY KEY,
     screen_id INTEGER REFERENCES screens(id) ON DELETE CASCADE,
     seat_number INTEGER NOT NULL,
     row_label VARCHAR(10) NOT NULL
 );
 
-CREATE TABLE movies (
+CREATE TABLE IF NOT EXISTS movies (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     poster_url VARCHAR(255),
     trailer_url VARCHAR(255),
-    duration_minutes INTEGER NOT NULL
+    duration_minutes INTEGER NOT NULL,
+    age_rating VARCHAR(50) DEFAULT 'UA',
+    genre VARCHAR(100) DEFAULT 'Drama',
+    languages TEXT[] DEFAULT '{"English"}',
+    movie_cast JSONB DEFAULT '[]'::jsonb
 );
 
-CREATE TABLE shows (
+CREATE TABLE IF NOT EXISTS shows (
     id SERIAL PRIMARY KEY,
     screen_id INTEGER REFERENCES screens(id) ON DELETE CASCADE,
     movie_id INTEGER REFERENCES movies(id) ON DELETE CASCADE,
@@ -51,7 +64,7 @@ CREATE TABLE shows (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE show_seats (
+CREATE TABLE IF NOT EXISTS show_seats (
     id SERIAL PRIMARY KEY,
     show_id INTEGER REFERENCES shows(id) ON DELETE CASCADE,
     seat_id INTEGER REFERENCES seats(id) ON DELETE CASCADE,
@@ -59,22 +72,23 @@ CREATE TABLE show_seats (
     UNIQUE (show_id, seat_id)
 );
 
-CREATE TABLE bookings (
+CREATE TABLE IF NOT EXISTS bookings (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     show_id INTEGER REFERENCES shows(id) ON DELETE CASCADE,
     status booking_status NOT NULL DEFAULT 'confirmed',
     total_amount DECIMAL(10, 2) NOT NULL,
+    snacks JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE booking_seats (
+CREATE TABLE IF NOT EXISTS booking_seats (
     booking_id INTEGER REFERENCES bookings(id) ON DELETE CASCADE,
     show_seat_id INTEGER REFERENCES show_seats(id) ON DELETE CASCADE,
     PRIMARY KEY (booking_id, show_seat_id)
 );
 
 -- Indexes
-CREATE INDEX idx_show_seats_show_status ON show_seats(show_id, status);
-CREATE INDEX idx_bookings_user_id ON bookings(user_id);
-CREATE INDEX idx_shows_screen_start ON shows(screen_id, start_time);
+CREATE INDEX IF NOT EXISTS idx_show_seats_show_status ON show_seats(show_id, status);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_shows_screen_start ON shows(screen_id, start_time);

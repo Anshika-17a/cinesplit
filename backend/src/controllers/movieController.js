@@ -25,9 +25,19 @@ exports.getMovies = async (req, res, next) => {
       query += ` AND $${params.length} = ANY(m.languages)`;
     }
     
-    const result = await pool.query(query, params);
+    let result = await pool.query(query, params);
+
+    // If no active shows found, fallback to returning all catalog movies
+    if (result.rows.length === 0 && (!city || city === 'All Cities') && (!language || language === 'All')) {
+      const allMovies = await pool.query(`
+        SELECT id, title, poster_url, languages, age_rating, duration_minutes FROM movies
+      `);
+      result = allMovies;
+    }
+
     res.json(result.rows);
   } catch (error) {
+    console.error('getMovies error:', error);
     next(error);
   }
 };
