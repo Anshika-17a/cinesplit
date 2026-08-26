@@ -3,7 +3,9 @@ import { useAuth } from '../hooks/useAuth';
 
 const getApiBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (!envUrl) return 'http://localhost:5000/api';
+  if (!envUrl) {
+    return 'https://cinesplit-backend.onrender.com/api';
+  }
   return envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/$/, '')}/api`;
 };
 
