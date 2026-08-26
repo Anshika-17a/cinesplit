@@ -60,6 +60,20 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy' });
 });
 
+app.get('/api/seed', async (req, res) => {
+  try {
+    const initDbIfEmpty = require('./src/db/init_db_if_empty');
+    await initDbIfEmpty();
+    const seedScript = require('./seed_extended');
+    if (typeof seedScript === 'function') {
+      await seedScript();
+    }
+    res.json({ status: 'success', message: 'Database seeded successfully!' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/cinemas', cinemaRoutes);
 app.use('/api/shows', showRoutes);
