@@ -67,6 +67,7 @@ export const ShowDetail: React.FC = () => {
   
   const [show, setShow] = useState<ShowData | null>(null);
   const [seatMap, setSeatMap] = useState<SeatMapData | null>(null);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState<Set<number>>(new Set());
   const [selectedSnacks, setSelectedSnacks] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -176,7 +177,7 @@ export const ShowDetail: React.FC = () => {
           }
         },
         theme: {
-          color: '#8b5cf6'
+          color: '#E11D48'
         }
       };
 
@@ -257,7 +258,7 @@ export const ShowDetail: React.FC = () => {
       <div style={{ maxWidth: '720px', margin: '0 auto', padding: '0 var(--space-md)' }}>
 
         {/* ─── Header ─── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)', paddingTop: 'var(--space-md)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginBottom: 'var(--space-md)', paddingTop: 'var(--space-md)' }}>
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -267,8 +268,32 @@ export const ShowDetail: React.FC = () => {
             <ChevronLeft size={20} />
           </motion.button>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '2px' }}>{show.title}</h1>
-            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <h1 style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0 }}>{show.title}</h1>
+              {show.trailer_url && (
+                <button
+                  type="button"
+                  onClick={() => setIsTrailerOpen(!isTrailerOpen)}
+                  style={{
+                    background: isTrailerOpen ? 'rgba(225,29,72,0.2)' : 'rgba(225,29,72,0.15)',
+                    border: `1px solid ${isTrailerOpen ? '#E11D48' : 'rgba(225,29,72,0.4)'}`,
+                    color: isTrailerOpen ? '#fb7185' : '#f43f5e',
+                    borderRadius: '20px',
+                    padding: '3px 10px',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {isTrailerOpen ? '✕ Close Trailer' : '▶ Watch Trailer'}
+                </button>
+              )}
+            </div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
               {show.cinema_name} • {show.screen_name} • {showDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
@@ -278,17 +303,85 @@ export const ShowDetail: React.FC = () => {
           </div>
         </div>
 
+        {/* ─── Expandable Trailer Video Player ─── */}
+        <AnimatePresence>
+          {isTrailerOpen && show.trailer_url && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div style={{
+                position: 'relative',
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                border: '1px solid rgba(225,29,72,0.3)',
+                background: '#000',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.6)'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setIsTrailerOpen(false)}
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    zIndex: 10,
+                    background: 'rgba(0,0,0,0.7)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    color: '#fff',
+                    borderRadius: '50%',
+                    width: '32px',
+                    height: '32px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  ✕
+                </button>
+
+                {show.trailer_url.endsWith('.mp4') ? (
+                  <video
+                    width="100%"
+                    height="360"
+                    src={show.trailer_url}
+                    controls
+                    autoPlay
+                    style={{ display: 'block', objectFit: 'cover', background: '#000' }}
+                  />
+                ) : (
+                  <iframe
+                    width="100%"
+                    height="360"
+                    src={show.trailer_url.includes('autoplay') ? show.trailer_url : `${show.trailer_url}${show.trailer_url.includes('?') ? '&' : '?'}autoplay=1`}
+                    title={`${show.title} Trailer`}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
+                    style={{ display: 'block', border: 'none' }}
+                  />
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ─── Screen Indicator ─── */}
         <div style={{ position: 'relative', marginBottom: 'var(--space-2xl)', textAlign: 'center' }}>
           <div style={{
             width: '80%', height: '6px', margin: '0 auto',
             borderRadius: '0 0 50% 50%',
             background: 'linear-gradient(90deg, transparent 0%, var(--color-accent) 30%, #fff 50%, var(--color-accent) 70%, transparent 100%)',
-            boxShadow: '0 4px 30px rgba(139, 92, 246, 0.5), 0 2px 15px rgba(139, 92, 246, 0.3)'
+            boxShadow: '0 4px 30px rgba(225, 29, 72, 0.5), 0 2px 15px rgba(225, 29, 72, 0.3)'
           }} />
           <div style={{
             width: '60%', height: '40px', margin: '-2px auto 0',
-            background: 'linear-gradient(to bottom, rgba(139, 92, 246, 0.08) 0%, transparent 100%)',
+            background: 'linear-gradient(to bottom, rgba(225, 29, 72, 0.08) 0%, transparent 100%)',
             borderRadius: '0 0 50% 50%'
           }} />
           <span style={{ fontSize: '0.65rem', color: 'var(--color-text-secondary)', letterSpacing: '0.3em', textTransform: 'uppercase', position: 'relative', top: '-10px' }}>Screen This Way</span>
@@ -417,7 +510,7 @@ export const ShowDetail: React.FC = () => {
                     <div
                       key={snack.id}
                       style={{
-                        background: qty > 0 ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.03)',
+                        background: qty > 0 ? 'rgba(225,29,72,0.1)' : 'rgba(255,255,255,0.03)',
                         border: `1px solid ${qty > 0 ? 'var(--color-accent)' : 'var(--color-border)'}`,
                         borderRadius: 'var(--radius-md)',
                         padding: 'var(--space-sm)',
@@ -489,8 +582,8 @@ export const ShowDetail: React.FC = () => {
               style={{ marginBottom: 'var(--space-lg)' }}
             >
               <div style={{
-                background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(30,30,40,0.9) 100%)',
-                border: '1px solid rgba(139,92,246,0.3)',
+                background: 'linear-gradient(135deg, rgba(225,29,72,0.15) 0%, rgba(30,30,40,0.9) 100%)',
+                border: '1px solid rgba(225,29,72,0.3)',
                 borderRadius: 'var(--radius-lg)',
                 overflow: 'hidden',
                 position: 'relative'
@@ -500,7 +593,7 @@ export const ShowDetail: React.FC = () => {
                 <div style={{ position: 'absolute', right: '-10px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', borderRadius: '50%', background: 'var(--color-bg)' }} />
 
                 {/* Dashed separator */}
-                <div style={{ position: 'absolute', left: '20px', right: '20px', top: '50%', borderTop: '2px dashed rgba(139,92,246,0.3)' }} />
+                <div style={{ position: 'absolute', left: '20px', right: '20px', top: '50%', borderTop: '2px dashed rgba(225,29,72,0.3)' }} />
 
                 {/* Top half */}
                 <div style={{ padding: 'var(--space-lg) var(--space-xl)', paddingBottom: 'var(--space-lg)' }}>
@@ -579,7 +672,7 @@ export const ShowDetail: React.FC = () => {
               border: 'none',
               borderRadius: 'var(--radius-lg)',
               background: selectedSeats.size > 0 && !booking
-                ? 'linear-gradient(135deg, var(--color-accent) 0%, #a855f7 50%, #ec4899 100%)'
+                ? 'linear-gradient(135deg, #F43F5E 0%, #E11D48 50%, #BE123C 100%)'
                 : 'var(--color-surface)',
               color: selectedSeats.size > 0 && !booking ? '#fff' : 'var(--color-text-secondary)',
               fontSize: '1rem',
@@ -587,7 +680,7 @@ export const ShowDetail: React.FC = () => {
               letterSpacing: '0.05em',
               cursor: selectedSeats.size > 0 && !booking ? 'pointer' : 'not-allowed',
               transition: 'all 0.3s ease',
-              boxShadow: selectedSeats.size > 0 ? '0 4px 20px rgba(139, 92, 246, 0.4)' : 'none'
+              boxShadow: selectedSeats.size > 0 ? '0 4px 20px rgba(225, 29, 72, 0.4)' : 'none'
             }}
           >
             {booking ? 'Processing...' : selectedSeats.size > 0 ? `Proceed to Pay • ₹${totalPrice.toFixed(0)}` : 'Select your seats'}

@@ -102,37 +102,37 @@ export const BookingConfirmation: React.FC = () => {
             {/* ─── Downloadable Ticket Card ─── */}
             <div ref={ticketRef} style={{ width: '100%' }}>
               <div style={{
-                background: 'linear-gradient(145deg, #1a1a2e 0%, #16213e 100%)',
-                border: '1px solid rgba(139,92,246,0.3)',
+                background: 'linear-gradient(145deg, #1a1a24 0%, #1c1917 100%)',
+                border: '1px solid rgba(225,29,72,0.35)',
                 borderRadius: '16px',
                 overflow: 'hidden',
                 position: 'relative',
                 fontFamily: 'system-ui, -apple-system, sans-serif'
               }}>
                 {/* Perforated circles */}
-                <div style={{ position: 'absolute', left: '-12px', top: '55%', transform: 'translateY(-50%)', width: '24px', height: '24px', borderRadius: '50%', background: '#0f0f1a' }} />
-                <div style={{ position: 'absolute', right: '-12px', top: '55%', transform: 'translateY(-50%)', width: '24px', height: '24px', borderRadius: '50%', background: '#0f0f1a' }} />
+                <div style={{ position: 'absolute', left: '-12px', top: '55%', transform: 'translateY(-50%)', width: '24px', height: '24px', borderRadius: '50%', background: '#09090b' }} />
+                <div style={{ position: 'absolute', right: '-12px', top: '55%', transform: 'translateY(-50%)', width: '24px', height: '24px', borderRadius: '50%', background: '#09090b' }} />
 
                 {/* Accent bar */}
-                <div style={{ height: '4px', background: 'linear-gradient(90deg, #8b5cf6, #ec4899, #8b5cf6)' }} />
+                <div style={{ height: '4px', background: 'linear-gradient(90deg, #F43F5E, #E11D48, #BE123C)' }} />
 
                 {/* Top section */}
                 <div style={{ padding: '20px 24px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <p style={{ fontSize: '10px', color: '#8b5cf6', letterSpacing: '0.2em', fontWeight: 700, marginBottom: '4px' }}>CINESPLIT</p>
+                      <p style={{ fontSize: '10px', color: '#E11D48', letterSpacing: '0.2em', fontWeight: 700, marginBottom: '4px' }}>CINESPLIT</p>
                       <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{ticket.movie_title}</h3>
                       <p style={{ fontSize: '0.8rem', color: '#9ca3af' }}>{ticket.cinema_name} • {ticket.screen_name}</p>
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <p style={{ fontSize: '9px', color: '#6b7280', letterSpacing: '0.15em' }}>BOOKING REF</p>
-                      <p style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: '#8b5cf6', fontWeight: 600 }}>#{ticket.booking_id}</p>
+                      <p style={{ fontSize: '0.8rem', fontFamily: 'monospace', color: '#E11D48', fontWeight: 600 }}>#{ticket.booking_id}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Dashed separator */}
-                <div style={{ margin: '0 24px', borderTop: '2px dashed rgba(139,92,246,0.25)' }} />
+                <div style={{ margin: '0 24px', borderTop: '2px dashed rgba(225,29,72,0.3)' }} />
 
                 {/* Details grid */}
                 <div style={{ padding: '16px 24px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
@@ -155,7 +155,7 @@ export const BookingConfirmation: React.FC = () => {
                   <p style={{ fontSize: '9px', color: '#6b7280', letterSpacing: '0.15em', marginBottom: '6px' }}>SEATS</p>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                     {seatLabels.map(s => (
-                      <span key={s} style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600 }}>{s}</span>
+                      <span key={s} style={{ background: 'rgba(225,29,72,0.15)', color: '#fb7185', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600 }}>{s}</span>
                     ))}
                   </div>
                 </div>
@@ -166,7 +166,7 @@ export const BookingConfirmation: React.FC = () => {
                     <p style={{ fontSize: '9px', color: '#6b7280', letterSpacing: '0.15em', marginBottom: '6px' }}>SNACKS & DRINKS</p>
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                       {ticket.snacks.map((snack, idx) => (
-                        <span key={idx} style={{ background: 'rgba(236,72,153,0.15)', border: '1px solid rgba(236,72,153,0.3)', color: '#f472b6', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                        <span key={idx} style={{ background: 'rgba(225,29,72,0.15)', border: '1px solid rgba(225,29,72,0.3)', color: '#fb7185', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
                           🍿 {snack.name} x{snack.quantity}
                         </span>
                       ))}

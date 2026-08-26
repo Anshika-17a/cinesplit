@@ -4,13 +4,14 @@
   --color-surface: rgba(24, 24, 27, 0.4); /* Translucent glass */
   --color-surface-hover: rgba(39, 39, 42, 0.6);
   --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-glow: rgba(139, 92, 246, 0.3); /* Violet glow */
+  --color-border-glow: rgba(225, 29, 72, 0.35); /* Crimson glow */
   
   --color-text-primary: #f4f4f5;
   --color-text-secondary: #a1a1aa;
   
-  --color-accent: #8b5cf6; /* Electric Violet */
-  --color-accent-hover: #7c3aed;
+  --color-accent: #E11D48; /* Cinematic Crimson */
+  --color-accent-hover: #BE123C; /* Deep Red */
+  --color-accent-gradient: linear-gradient(135deg, #F43F5E 0%, #E11D48 50%, #BE123C 100%);
   
   --color-danger: #ef4444;
   --color-success: #10b981;

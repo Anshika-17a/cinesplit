@@ -132,7 +132,7 @@ export const MyBookings: React.FC = () => {
                   Seats: {b.seats.map(s => `${s.row_label}${s.seat_number}`).join(', ')} | Total: ₹{b.total_amount}
                 </p>
                 {b.snacks && b.snacks.length > 0 && (
-                  <p style={{ color: '#f472b6', fontSize: '0.8rem', marginTop: '4px' }}>
+                  <p style={{ color: '#fb7185', fontSize: '0.8rem', marginTop: '4px' }}>
                     🍿 Snacks: {b.snacks.map(s => `${s.name} x${s.quantity}`).join(', ')}
                   </p>
                 )}
