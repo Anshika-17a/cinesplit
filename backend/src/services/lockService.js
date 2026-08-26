@@ -38,7 +38,33 @@ const releaseSeatLock = async (showId, seatId) => {
   }
 };
 
+/**
+ * Gets all locked seat IDs for a given show from Redis.
+ * 
+ * @param {number} showId 
+ * @param {number[]} seatIds 
+ * @returns {Promise<Set<number>>} Set of locked show_seat_ids
+ */
+const getLockedSeatIds = async (showId, seatIds) => {
+  if (!Array.isArray(seatIds) || seatIds.length === 0) return new Set();
+  try {
+    const keys = seatIds.map(id => `lock:show:${showId}:seat:${id}`);
+    const results = await redisClient.mget(keys);
+    const lockedIds = new Set();
+    results.forEach((val, idx) => {
+      if (val !== null && val !== undefined) {
+        lockedIds.add(seatIds[idx]);
+      }
+    });
+    return lockedIds;
+  } catch (err) {
+    console.error('Error fetching locked seat IDs from Redis:', err.message);
+    return new Set();
+  }
+};
+
 module.exports = {
   acquireSeatLock,
-  releaseSeatLock
+  releaseSeatLock,
+  getLockedSeatIds
 };

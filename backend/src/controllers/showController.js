@@ -1,5 +1,6 @@
 const pgClient = require('../config/postgres');
 const { getAvailableSeatCount } = require('../services/cacheService');
+const { getLockedSeatIds } = require('../services/lockService');
 
 const getShowById = async (req, res) => {
   const showId = parseInt(req.params.showId, 10);
@@ -57,10 +58,7 @@ const getShowSeats = async (req, res) => {
   }
 
   try {
-    // 1. Get available count from Redis (or fallback to PG)
-    const availableCount = await getAvailableSeatCount(showId);
-
-    // 2. Fetch all seats for the show mapping
+    // 1. Fetch all seats for the show mapping from Postgres
     const query = `
       SELECT 
         ss.id as show_seat_id,
@@ -75,12 +73,26 @@ const getShowSeats = async (req, res) => {
     `;
     
     const result = await pgClient.query(query, [showId]);
+    const seatIds = result.rows.map(r => r.show_seat_id);
+
+    // 2. Fetch all real-time Redis locks for this show
+    const lockedSeatIds = await getLockedSeatIds(showId, seatIds);
+
+    // 3. Merge Redis lock state into seats
+    const seatsWithLocks = result.rows.map(row => {
+      if (row.status === 'available' && lockedSeatIds.has(row.show_seat_id)) {
+        return { ...row, status: 'locked' };
+      }
+      return row;
+    });
+
+    const availableCount = seatsWithLocks.filter(s => s.status === 'available').length;
 
     res.json({
       showId,
       availableCount,
       totalSeats: result.rows.length,
-      seats: result.rows
+      seats: seatsWithLocks
     });
   } catch (err) {
     console.error('Error fetching show seats:', err);

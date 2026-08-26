@@ -91,6 +91,21 @@ export const ShowDetail: React.FC = () => {
     try {
       const res = await apiClient.get(`/shows/${showId}/seats`);
       setSeatMap(res.data);
+      // Auto-deselect any seats that got locked or booked by another user
+      const unavailableIds = new Set(
+        res.data.seats.filter((s: Seat) => s.status !== 'available').map((s: Seat) => s.show_seat_id)
+      );
+      setSelectedSeats(prev => {
+        let changed = false;
+        const next = new Set(prev);
+        for (const id of prev) {
+          if (unavailableIds.has(id)) {
+            next.delete(id);
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
     } catch (e) {
       console.error('Failed to fetch seats', e);
     }
@@ -100,7 +115,7 @@ export const ShowDetail: React.FC = () => {
     apiClient.get(`/shows/${showId}`).then(res => setShow(res.data)).catch(console.error);
     fetchSeatMap().finally(() => setLoading(false));
 
-    const interval = setInterval(fetchSeatMap, 5000);
+    const interval = setInterval(fetchSeatMap, 2500);
     return () => clearInterval(interval);
   }, [showId]);
 
@@ -403,15 +418,20 @@ export const ShowDetail: React.FC = () => {
                         {block.map(seat => {
                           const isSelected = selectedSeats.has(seat.show_seat_id);
                           const isBooked = seat.status !== 'available';
+                          const isLocked = seat.status === 'locked';
 
                           let fill = 'transparent';
                           let stroke = 'rgba(255,255,255,0.25)';
                           let opacity = 1;
 
-                          if (isBooked) {
+                          if (seat.status === 'booked') {
                             fill = 'rgba(255,255,255,0.05)';
                             stroke = 'rgba(255,255,255,0.08)';
-                            opacity = 0.4;
+                            opacity = 0.35;
+                          } else if (isLocked) {
+                            fill = 'rgba(239,68,68,0.15)';
+                            stroke = 'rgba(239,68,68,0.4)';
+                            opacity = 0.6;
                           }
                           if (isSelected) {
                             fill = 'var(--color-accent)';
@@ -431,7 +451,13 @@ export const ShowDetail: React.FC = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center'
                               }}
-                              title={`${seat.row_label}${seat.seat_number}`}
+                              title={
+                                isLocked 
+                                  ? `${seat.row_label}${seat.seat_number} (In checkout by someone else)`
+                                  : isBooked 
+                                  ? `${seat.row_label}${seat.seat_number} (Booked)` 
+                                  : `${seat.row_label}${seat.seat_number}`
+                              }
                             >
                               <SeatIcon fill={fill} stroke={stroke} opacity={opacity} />
                               {isSelected && (
