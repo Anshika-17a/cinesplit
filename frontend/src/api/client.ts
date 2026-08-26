@@ -1,8 +1,14 @@
 import axios from 'axios';
 import { useAuth } from '../hooks/useAuth';
 
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return 'http://localhost:5000/api';
+  return envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/$/, '')}/api`;
+};
+
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: getApiBaseUrl(),
 });
 
 apiClient.interceptors.request.use((config) => {

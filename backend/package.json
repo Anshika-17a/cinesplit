@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "db:setup": "node src/db/migrate_and_seed.js",
+    "db:seed": "node seed_extended.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

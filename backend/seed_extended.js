@@ -2,7 +2,13 @@ require('dotenv').config();
 const { Client } = require('pg');
 
 const run = async () => {
-  const client = new Client({ connectionString: process.env.POSTGRES_URI });
+  const connectionString = process.env.POSTGRES_URI || process.env.DATABASE_URL;
+  const isRemote = connectionString && !connectionString.includes('localhost') && !connectionString.includes('127.0.0.1');
+
+  const client = new Client({
+    connectionString,
+    ssl: isRemote ? { rejectUnauthorized: false } : false,
+  });
   try {
     await client.connect();
     console.log('Connected to DB. Running extended regional seed...');
