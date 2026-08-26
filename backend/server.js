@@ -83,6 +83,7 @@ app.get('/api/debug', async (req, res) => {
     redis_url: process.env.REDIS_URL ? `set (${process.env.REDIS_URL.substring(0, 20)}...)` : 'MISSING',
     redis_status: 'unknown',
     razorpay_test: 'untested',
+    gemini_test: 'untested',
   };
   // Test Redis
   try {
@@ -99,6 +100,16 @@ app.get('/api/debug', async (req, res) => {
     result.razorpay_test = `OK - order created: ${order.id}`;
   } catch (e) {
     result.razorpay_test = `ERROR: ${e.message || JSON.stringify(e)}`;
+  }
+  // Test Gemini
+  try {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+    const resAi = await model.generateContent('Hi');
+    result.gemini_test = `OK - response: ${resAi.response.text().trim()}`;
+  } catch (e) {
+    result.gemini_test = `ERROR: ${e.message}`;
   }
   res.json(result);
 });
