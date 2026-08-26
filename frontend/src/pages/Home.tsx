@@ -67,9 +67,14 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    let url = '/movies?';
-    if (selectedCity !== 'All Cities') url += `city=${encodeURIComponent(selectedCity)}&`;
-    if (selectedLanguage !== 'All') url += `language=${encodeURIComponent(selectedLanguage)}`;
+    const params = new URLSearchParams();
+    if (selectedCity && selectedCity !== 'All Cities' && selectedCity !== 'undefined') {
+      params.append('city', selectedCity);
+    }
+    if (selectedLanguage && selectedLanguage !== 'All') {
+      params.append('language', selectedLanguage);
+    }
+    const url = `/movies${params.toString() ? '?' + params.toString() : ''}`;
     
     apiClient.get(url)
       .then(res => setMovies(res.data))

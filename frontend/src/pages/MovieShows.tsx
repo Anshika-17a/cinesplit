@@ -45,8 +45,12 @@ export const MovieShows: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    let url = `/movies/${movieId}/shows?date=${selectedDate.toISOString().split('T')[0]}`;
-    if (city !== 'All Cities') url += `&city=${encodeURIComponent(city)}`;
+    const params = new URLSearchParams();
+    params.append('date', selectedDate.toISOString().split('T')[0]);
+    if (city && city !== 'All Cities' && city !== 'undefined') {
+      params.append('city', city);
+    }
+    const url = `/movies/${movieId}/shows?${params.toString()}`;
     
     apiClient.get(url)
       .then(res => setShows(res.data))

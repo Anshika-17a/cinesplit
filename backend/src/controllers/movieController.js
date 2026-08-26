@@ -2,7 +2,10 @@ const pool = require('../config/postgres');
 
 exports.getMovies = async (req, res, next) => {
   try {
-    const { city, language } = req.query;
+    let { city, language } = req.query;
+    // Sanitize: treat 'undefined'/'null'/empty as absent
+    if (!city || city === 'undefined' || city === 'null' || city === 'All Cities') city = null;
+    if (!language || language === 'undefined' || language === 'null' || language === 'All') language = null;
     
     let query = `
       SELECT DISTINCT m.id, m.title, m.poster_url, m.languages, m.age_rating, m.duration_minutes
@@ -15,24 +18,29 @@ exports.getMovies = async (req, res, next) => {
     
     const params = [];
     
-    if (city && city !== 'All Cities') {
+    if (city) {
       params.push(city);
       query += ` AND c.city = $${params.length}`;
     }
     
-    if (language && language !== 'All') {
+    if (language) {
       params.push(language);
       query += ` AND $${params.length} = ANY(m.languages)`;
     }
     
     let result = await pool.query(query, params);
 
-    // If no active shows found, fallback to returning all catalog movies
-    if (result.rows.length === 0 && (!city || city === 'All Cities') && (!language || language === 'All')) {
+    // If no results, fallback: return all catalog movies with upcoming shows
+    if (result.rows.length === 0 && !city && !language) {
       const allMovies = await pool.query(`
-        SELECT id, title, poster_url, languages, age_rating, duration_minutes FROM movies
+        SELECT DISTINCT m.id, m.title, m.poster_url, m.languages, m.age_rating, m.duration_minutes
+        FROM movies m
+        JOIN shows s ON s.movie_id = m.id
+        WHERE s.start_time > NOW()
       `);
-      result = allMovies;
+      result = allMovies.rows.length > 0 ? allMovies : await pool.query(
+        'SELECT id, title, poster_url, languages, age_rating, duration_minutes FROM movies'
+      );
     }
 
     res.json(result.rows);
