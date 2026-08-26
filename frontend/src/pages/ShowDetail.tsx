@@ -53,6 +53,13 @@ const SeatIcon: React.FC<{ fill: string; stroke: string; opacity?: number }> = (
   </svg>
 );
 
+const SNACK_OPTIONS = [
+  { id: 'popcorn', name: 'Popcorn (Large)', price: 250, icon: '🍿' },
+  { id: 'drink', name: 'Cold Drink', price: 120, icon: '🥤' },
+  { id: 'nachos', name: 'Cheese Nachos', price: 200, icon: '🧀' },
+  { id: 'combo', name: 'Combo (Popcorn + Drink)', price: 350, icon: '🎬' }
+];
+
 export const ShowDetail: React.FC = () => {
   const { showId } = useParams();
   const navigate = useNavigate();
@@ -61,8 +68,23 @@ export const ShowDetail: React.FC = () => {
   const [show, setShow] = useState<ShowData | null>(null);
   const [seatMap, setSeatMap] = useState<SeatMapData | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<Set<number>>(new Set());
+  const [selectedSnacks, setSelectedSnacks] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState(false);
+
+  const updateSnackQty = (id: string, delta: number) => {
+    setSelectedSnacks(prev => {
+      const current = prev[id] || 0;
+      const next = Math.max(0, current + delta);
+      const copy = { ...prev };
+      if (next === 0) {
+        delete copy[id];
+      } else {
+        copy[id] = next;
+      }
+      return copy;
+    });
+  };
 
   const fetchSeatMap = async () => {
     try {
@@ -96,10 +118,18 @@ export const ShowDetail: React.FC = () => {
     setBooking(true);
     
     const seatIdArray = Array.from(selectedSeats);
+    const formattedSnacks = SNACK_OPTIONS
+      .filter(s => (selectedSnacks[s.id] || 0) > 0)
+      .map(s => ({
+        name: s.name,
+        price: s.price,
+        quantity: selectedSnacks[s.id]
+      }));
     
     try {
       const orderRes = await apiClient.post(`/shows/${showId}/create-order`, {
-        seatIds: seatIdArray
+        seatIds: seatIdArray,
+        snacks: formattedSnacks
       });
       
       const { orderId, amount, keyId } = orderRes.data;
@@ -119,7 +149,8 @@ export const ShowDetail: React.FC = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              seatIds: seatIdArray
+              seatIds: seatIdArray,
+              snacks: formattedSnacks
             });
             
             addToast('Payment and Booking successful!', 'success');
@@ -194,12 +225,19 @@ export const ShowDetail: React.FC = () => {
   });
 
   const sortedRowLabels = Object.keys(rows).sort();
-  const totalPrice = selectedSeats.size * parseFloat(show.price_per_seat);
+  const seatsTotal = selectedSeats.size * parseFloat(show.price_per_seat);
+  const snackTotal = SNACK_OPTIONS.reduce((sum, s) => sum + (s.price * (selectedSnacks[s.id] || 0)), 0);
+  const totalPrice = seatsTotal + snackTotal;
   const showDate = new Date(show.start_time);
   const selectedSeatLabels = seatMap.seats
     .filter(s => selectedSeats.has(s.show_seat_id))
     .map(s => `${s.row_label}${s.seat_number}`)
     .sort();
+
+  const selectedSnacksSummary = SNACK_OPTIONS
+    .filter(s => (selectedSnacks[s.id] || 0) > 0)
+    .map(s => `${s.name} x${selectedSnacks[s.id]}`)
+    .join(', ');
 
   // Split seats into blocks with aisle gaps
   const getBlocks = (rowSeats: Seat[]) => {
@@ -343,6 +381,104 @@ export const ShowDetail: React.FC = () => {
           </div>
         </div>
 
+        {/* ─── Optional Snacks Add-on Section ─── */}
+        <AnimatePresence>
+          {selectedSeats.size > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 15 }}
+              style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'var(--space-lg)',
+                marginBottom: 'var(--space-lg)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
+                <div>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>🍿</span> Add Snacks & Drinks <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontWeight: 400 }}>(Optional)</span>
+                  </h3>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>Delivered to your seat before showtime</p>
+                </div>
+                {snackTotal > 0 && (
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>
+                    +₹{snackTotal}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 'var(--space-sm)' }}>
+                {SNACK_OPTIONS.map(snack => {
+                  const qty = selectedSnacks[snack.id] || 0;
+                  return (
+                    <div
+                      key={snack.id}
+                      style={{
+                        background: qty > 0 ? 'rgba(139,92,246,0.1)' : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${qty > 0 ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                        borderRadius: 'var(--radius-md)',
+                        padding: 'var(--space-sm)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '1.4rem' }}>{snack.icon}</span>
+                        <div>
+                          <p style={{ fontSize: '0.8rem', fontWeight: 600, lineHeight: 1.2 }}>{snack.name}</p>
+                          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>₹{snack.price}</p>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+                        <button
+                          type="button"
+                          onClick={() => updateSnackQty(snack.id, -1)}
+                          disabled={qty === 0}
+                          style={{
+                            width: '26px', height: '26px', borderRadius: '4px',
+                            border: '1px solid var(--color-border)',
+                            background: qty > 0 ? 'rgba(255,255,255,0.1)' : 'transparent',
+                            color: qty > 0 ? '#fff' : 'var(--color-text-secondary)',
+                            cursor: qty > 0 ? 'pointer' : 'default',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '1rem', fontWeight: 700
+                          }}
+                        >
+                          -
+                        </button>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: qty > 0 ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}>
+                          {qty}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateSnackQty(snack.id, 1)}
+                          style={{
+                            width: '26px', height: '26px', borderRadius: '4px',
+                            border: 'none',
+                            background: 'var(--color-accent)',
+                            color: '#fff',
+                            cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '1rem', fontWeight: 700
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* ─── Ticket Preview Card ─── */}
         <AnimatePresence>
           {selectedSeats.size > 0 && (
@@ -395,6 +531,16 @@ export const ShowDetail: React.FC = () => {
                     <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-accent)' }}>{selectedSeatLabels.join(', ')}</p>
                   </div>
                 </div>
+
+                {/* Snacks in ticket preview */}
+                {selectedSnacksSummary && (
+                  <div style={{ padding: '0 var(--space-xl) var(--space-md)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.8rem' }}>🍿</span>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+                      <strong style={{ color: 'var(--color-text-primary)' }}>Snacks:</strong> {selectedSnacksSummary}
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -408,9 +554,16 @@ export const ShowDetail: React.FC = () => {
           zIndex: 10
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-sm)' }}>
-            <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>
-              {selectedSeats.size} {selectedSeats.size === 1 ? 'seat' : 'seats'} selected
-            </span>
+            <div>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem' }}>
+                {selectedSeats.size} {selectedSeats.size === 1 ? 'seat' : 'seats'} selected
+              </span>
+              {snackTotal > 0 && (
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.75rem', marginLeft: '6px' }}>
+                  (Seats: ₹{seatsTotal.toFixed(0)} + Snacks: ₹{snackTotal})
+                </span>
+              )}
+            </div>
             <span style={{ fontSize: '1.3rem', fontWeight: 700 }}>
               ₹{totalPrice.toFixed(0)}
             </span>

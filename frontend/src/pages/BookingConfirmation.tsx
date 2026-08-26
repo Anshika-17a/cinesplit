@@ -20,6 +20,7 @@ interface TicketData {
   cinema_name: string;
   screen_name: string;
   seats: { seat_number: number; row_label: string }[];
+  snacks?: { name: string; price: number; quantity: number }[];
 }
 
 export const BookingConfirmation: React.FC = () => {
@@ -158,6 +159,20 @@ export const BookingConfirmation: React.FC = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Snacks */}
+                {ticket.snacks && ticket.snacks.length > 0 && (
+                  <div style={{ padding: '0 24px 16px' }}>
+                    <p style={{ fontSize: '9px', color: '#6b7280', letterSpacing: '0.15em', marginBottom: '6px' }}>SNACKS & DRINKS</p>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {ticket.snacks.map((snack, idx) => (
+                        <span key={idx} style={{ background: 'rgba(236,72,153,0.15)', border: '1px solid rgba(236,72,153,0.3)', color: '#f472b6', padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                          🍿 {snack.name} x{snack.quantity}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* QR Code */}
                 {qrCode && (

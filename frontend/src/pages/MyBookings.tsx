@@ -24,6 +24,7 @@ interface Booking {
   cinema_name: string;
   screen_name: string;
   seats: BookingSeat[];
+  snacks?: { name: string; price: number; quantity: number }[];
 }
 
 import { useNavigate } from 'react-router-dom';
@@ -130,6 +131,11 @@ export const MyBookings: React.FC = () => {
                 <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem', marginTop: 'var(--space-xs)' }}>
                   Seats: {b.seats.map(s => `${s.row_label}${s.seat_number}`).join(', ')} | Total: ₹{b.total_amount}
                 </p>
+                {b.snacks && b.snacks.length > 0 && (
+                  <p style={{ color: '#f472b6', fontSize: '0.8rem', marginTop: '4px' }}>
+                    🍿 Snacks: {b.snacks.map(s => `${s.name} x${s.quantity}`).join(', ')}
+                  </p>
+                )}
                 {b.booking_status === 'cancelled' && (
                   <span style={{ display: 'inline-block', marginTop: 'var(--space-sm)', color: 'var(--color-danger)', fontSize: '0.75rem', padding: '0.1rem 0.5rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '4px' }}>
                     CANCELLED

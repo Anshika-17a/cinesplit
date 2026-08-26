@@ -16,7 +16,7 @@ const razorpay = new Razorpay({
 const createOrder = async (req, res) => {
   const userId = req.user.userId;
   const showId = parseInt(req.params.showId, 10);
-  const { seatIds } = req.body;
+  const { seatIds, snacks } = req.body;
 
   if (isNaN(showId)) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', message: 'Invalid show ID' });
@@ -64,7 +64,11 @@ const createOrder = async (req, res) => {
       return res.status(409).json({ error: 'SEATS_UNAVAILABLE', message: 'One or more seats are no longer available', seats: unavailableSeats });
     }
 
-    const totalAmountFloat = parseFloat(show.price_per_seat) * seatIds.length;
+    const snackTotal = Array.isArray(snacks) 
+      ? snacks.reduce((sum, s) => sum + (parseFloat(s.price || 0) * parseInt(s.quantity || 0, 10)), 0) 
+      : 0;
+
+    const totalAmountFloat = (parseFloat(show.price_per_seat) * seatIds.length) + snackTotal;
     const amountInPaise = Math.round(totalAmountFloat * 100);
 
     const options = {
@@ -80,6 +84,7 @@ const createOrder = async (req, res) => {
       amount: order.amount,
       keyId: process.env.RAZORPAY_KEY_ID,
       seatIds,
+      snacks: snacks || [],
       totalAmountFloat
     });
 
@@ -93,7 +98,7 @@ const createOrder = async (req, res) => {
 const verifyPayment = async (req, res) => {
   const userId = req.user.userId;
   const showId = parseInt(req.params.showId, 10);
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, seatIds } = req.body;
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature, seatIds, snacks } = req.body;
 
   // Verify Signature
   const generatedSignature = crypto
@@ -144,13 +149,17 @@ const verifyPayment = async (req, res) => {
       return res.status(409).json({ error: 'SEATS_UNAVAILABLE', message: 'One or more seats are no longer available. A refund has been initiated.', seats: unavailableSeats });
     }
 
-    const totalAmount = parseFloat(show.price_per_seat) * seatIds.length;
+    const snackTotal = Array.isArray(snacks) 
+      ? snacks.reduce((sum, s) => sum + (parseFloat(s.price || 0) * parseInt(s.quantity || 0, 10)), 0) 
+      : 0;
+
+    const totalAmount = (parseFloat(show.price_per_seat) * seatIds.length) + snackTotal;
 
     await pgClient.query('UPDATE show_seats SET status = $1 WHERE id = ANY($2::int[])', ['booked', seatIds]);
 
     const bookingResult = await pgClient.query(
-      'INSERT INTO bookings (user_id, show_id, status, total_amount) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
-      [userId, showId, 'confirmed', totalAmount]
+      'INSERT INTO bookings (user_id, show_id, status, total_amount, snacks) VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at',
+      [userId, showId, 'confirmed', totalAmount, JSON.stringify(snacks || [])]
     );
     const booking = bookingResult.rows[0];
 
@@ -168,6 +177,7 @@ const verifyPayment = async (req, res) => {
       id: booking.id,
       showId,
       seats: seatIds,
+      snacks: snacks || [],
       totalAmount,
       createdAt: booking.created_at
     });
@@ -259,6 +269,7 @@ const getUserBookings = async (req, res) => {
         b.id as booking_id,
         b.status as booking_status,
         b.total_amount,
+        b.snacks,
         b.created_at,
         sh.id as show_id,
         sh.start_time,
@@ -318,7 +329,7 @@ const getTicketData = async (req, res) => {
   try {
     const result = await pgClient.query(`
       SELECT 
-        b.id as booking_id, b.status, b.total_amount, b.created_at,
+        b.id as booking_id, b.status, b.total_amount, b.snacks, b.created_at,
         sh.id as show_id, sh.start_time,
         m.title as movie_title, m.poster_url,
         c.name as cinema_name, s.name as screen_name,
