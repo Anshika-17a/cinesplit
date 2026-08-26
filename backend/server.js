@@ -74,6 +74,35 @@ app.get('/api/seed', async (req, res) => {
   }
 });
 
+app.get('/api/debug', async (req, res) => {
+  const result = {
+    razorpay_key_id: process.env.RAZORPAY_KEY_ID ? `set (${process.env.RAZORPAY_KEY_ID.substring(0, 8)}...)` : 'MISSING',
+    razorpay_secret: process.env.RAZORPAY_KEY_SECRET ? `set (${process.env.RAZORPAY_KEY_SECRET.length} chars)` : 'MISSING',
+    gemini_api_key: process.env.GEMINI_API_KEY ? `set (${process.env.GEMINI_API_KEY.length} chars)` : 'MISSING',
+    jwt_secret: process.env.JWT_SECRET ? 'set' : 'MISSING',
+    redis_url: process.env.REDIS_URL ? `set (${process.env.REDIS_URL.substring(0, 20)}...)` : 'MISSING',
+    redis_status: 'unknown',
+    razorpay_test: 'untested',
+  };
+  // Test Redis
+  try {
+    await redisClient.ping();
+    result.redis_status = 'connected';
+  } catch (e) {
+    result.redis_status = `ERROR: ${e.message}`;
+  }
+  // Test Razorpay
+  try {
+    const Razorpay = require('razorpay');
+    const rz = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET });
+    const order = await rz.orders.create({ amount: 100, currency: 'INR', receipt: 'test' });
+    result.razorpay_test = `OK - order created: ${order.id}`;
+  } catch (e) {
+    result.razorpay_test = `ERROR: ${e.message || JSON.stringify(e)}`;
+  }
+  res.json(result);
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/cinemas', cinemaRoutes);
 app.use('/api/shows', showRoutes);
